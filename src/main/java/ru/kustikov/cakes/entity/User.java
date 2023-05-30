@@ -31,7 +31,7 @@ public class User implements UserDetails {
     @Column(length = 3000)
     private String password;
 
-    @ElementCollection(targetClass = Role.class)
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role",
     joinColumns = @JoinColumn(referencedColumnName = "id"))
     private Set<Role> roles = new HashSet<>();

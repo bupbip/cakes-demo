@@ -19,20 +19,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
-@Component
+
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
     public static final Logger LOG = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
-    private JWTTokenProvider jwtTokenProvider;
-    private CustomUserDetailsService customUserDetailsService;
-
-    public JWTAuthenticationFilter() {
-    }
 
     @Autowired
-    public JWTAuthenticationFilter(JWTTokenProvider jwtTokenProvider, CustomUserDetailsService customUserDetailsService) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.customUserDetailsService = customUserDetailsService;
-    }
+    private JWTTokenProvider jwtTokenProvider;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         try {
@@ -41,20 +36,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
                 User userDetails = customUserDetailsService.loadUserById(userId);
 
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, Collections.emptyList()
                 );
 
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));;
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception exception) {
-            LOG.error("Could not set user authentication");
+        } catch (Exception ex) {
+            LOG.error("Could not set user authentication" + ex.getMessage());
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
-
 
     private String getJWTFromRequest(HttpServletRequest request) {
         String bearToken = request.getHeader(SecurityConstants.HEADER_STRING);
@@ -63,4 +57,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
+
+
 }

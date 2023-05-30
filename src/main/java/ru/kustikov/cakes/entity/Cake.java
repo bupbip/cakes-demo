@@ -29,7 +29,7 @@ public class Cake {
     private byte[] photo;
     @Column(name = "cake_price")
     private BigDecimal cakePrice;
-    @Column(name = "designPrice")
+    @Column(name = "design_price")
     private BigDecimal designPrice = BigDecimal.ZERO;
 
     @PostLoad
