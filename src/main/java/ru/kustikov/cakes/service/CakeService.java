@@ -10,6 +10,8 @@ import ru.kustikov.cakes.dto.OrderDTO;
 import ru.kustikov.cakes.entity.Cake;
 import ru.kustikov.cakes.entity.Order;
 import ru.kustikov.cakes.entity.User;
+import ru.kustikov.cakes.entity.enums.CakeSize;
+import ru.kustikov.cakes.exception.OrderNotFoundException;
 import ru.kustikov.cakes.repository.CakeRepository;
 import ru.kustikov.cakes.repository.OrderRepository;
 import ru.kustikov.cakes.repository.UserRepository;
@@ -18,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -37,16 +40,22 @@ public class CakeService {
         this.cakeRepository = cakeRepository;
     }
 
-    public Cake createCake(CakeDTO cakeDTO, Principal principal) {
+    public Cake saveCake(Long orderId, CakeDTO cakeDTO, Principal principal) {
         User user = getUserByPrincipal(principal);
+        Order order = orderRepository.findOrderById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found."));
         Cake cake = new Cake();
-        cake.setOrder(orderRepository.findOrderById(cakeDTO.getOrderId()).orElseThrow());
-        cake.setCakeSize(cakeDTO.getCakeSize());
+        cake.setOrder(order);
+        cake.setCakeSize(CakeSize.valueOf(cakeDTO.getCakeSize()));
         cake.setCakePrice(cakeDTO.getCakePrice());
         cake.setDesignPrice(cakeDTO.getDesignPrice());
         cake.setDesignRating(cakeDTO.getDesignRating());
         LOG.info("Saving order for user: {}", user.getInstagram());
         return cakeRepository.save(cake);
+    }
+
+    public List<Cake> getAllCakesForOrder(Long orderId) {
+        Order order = orderRepository.findOrderById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found."));
+        return cakeRepository.findAllByOrder(order);
     }
 
     private byte[] compressBytes(byte[] data) {

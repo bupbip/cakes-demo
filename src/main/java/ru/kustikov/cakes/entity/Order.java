@@ -17,11 +17,11 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    private User customer;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate date;
     @Column(name = "result_price")
-    private BigDecimal resultPrice = BigDecimal.ZERO;
+    private BigDecimal resultPrice;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "order", orphanRemoval = true)
     private List<Cake> cakes = new ArrayList<>();
 
@@ -30,9 +30,9 @@ public class Order {
         this.date = LocalDate.now();
     }
 
-    @PostPersist
-    protected void calculateResultPrice() {
+    public void calculateResultPrice() {
         if(cakes.isEmpty()) return;
+        resultPrice = BigDecimal.valueOf(0);
         for(Cake cake : cakes) {
             resultPrice = resultPrice.add(cake.getCakePrice()).add(cake.getDesignPrice());
         }

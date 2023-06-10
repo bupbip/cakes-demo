@@ -11,8 +11,19 @@ public class OrderFacade {
     public OrderDTO orderToOrderDTO(Order order){
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(order.getId());
-        orderDTO.setUserInst(order.getUser().getInstagram());
-        orderDTO.setDate(String.valueOf(order.getDate()));
+
+        User customer = order.getCustomer();
+        if (customer != null) {
+            UserDTO customerDTO = new UserDTO();
+            customerDTO.setId(customer.getId());
+            customerDTO.setInstagram(customer.getInstagram());
+            customerDTO.setName(customer.getName());
+            customerDTO.setPhone(customer.getPhone());
+
+            orderDTO.setCustomer(customerDTO);
+        }
+
+        orderDTO.setOrderDate(String.valueOf(order.getDate()));
         orderDTO.setResultPrice(order.getResultPrice());
         return orderDTO;
     }

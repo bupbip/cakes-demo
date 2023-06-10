@@ -1,6 +1,9 @@
 package ru.kustikov.cakes.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.kustikov.cakes.entity.enums.Role;
@@ -12,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 
 @Data
+@ToString(of = {"id", "name", "instagram", "phone", "password", "info"})
+@EqualsAndHashCode(of = {"id", "name", "instagram", "phone", "password", "info"})
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -23,7 +28,7 @@ public class User implements UserDetails {
     private String name;
 
     @Column(unique = true)
-    private String instagram;
+    private String instagram = "";
 
     @Column(unique = true)
     private String phone;
@@ -42,13 +47,14 @@ public class User implements UserDetails {
     @Column(columnDefinition = "text")
     private String info;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "customer", orphanRemoval = true)
     private List<Order> orders;
 
     @Transient
     private Collection<? extends GrantedAuthority> authorities;
 
-    public User () {}
+    public User () {
+    }
 
     public User(Long id, String instagram, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public class CakeDTO {
     private Long id;
     private Long orderId;
-    private CakeSize cakeSize;
+    private String cakeSize;
     private int designRating;
     private BigDecimal cakePrice;
     private BigDecimal designPrice;
